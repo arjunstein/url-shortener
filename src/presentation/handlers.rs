@@ -7,7 +7,15 @@ use serde_json::json;
 use std::sync::Arc;
 use tracing;
 
-#[handler]
+#[endpoint(
+    tags("URL Shortener"),
+    summary = "Create short URL",
+    description = "Generate a short URL from a given target URL",
+    request_body(
+        content = CreateShortUrlRequest,
+        description = "Payload for creating a short URL"
+    )
+)]
 pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     // Parse JSON body
     let body: CreateShortUrlRequest = match req.parse_json().await {
