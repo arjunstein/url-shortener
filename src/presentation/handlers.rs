@@ -93,9 +93,22 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
             res.render("Not Found");
         }
         Err(e) => {
-            tracing::error!("redirect error: {:?}", e);
-            res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
-            res.render("Internal Server Error");
+            let msg = e.to_string();
+            if msg.starts_with("EXPIRED:") {
+                tracing::error!("Expired URL: {}", code);
+                let exp = msg.trim_start_matches("EXPIRED:");
+                res.status_code(StatusCode::GONE);
+                res.render(Json(json!({
+                    "error": "url expired",
+                    "expired_at": exp
+                })));
+            } else {
+                tracing::error!("internal server error: {}", msg);
+                res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
+                res.render(Json(json!({
+                    "error": "internal server error"
+                })));
+            }
         }
     }
 }
