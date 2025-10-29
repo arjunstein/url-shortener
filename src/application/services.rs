@@ -1,4 +1,4 @@
-use crate::application::dtos::{CreateShortUrlRequest, ShortUrlResponse};
+use crate::application::dtos::{CreateShortUrlRequest, CreateUrlResponse};
 use crate::domain::repositories::UrlRepository;
 use anyhow::Result;
 use async_trait::async_trait;
@@ -8,7 +8,7 @@ use std::sync::Arc;
 
 #[async_trait]
 pub trait UrlService: Send + Sync {
-    async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<ShortUrlResponse>;
+    async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse>;
     async fn get_target_url(&self, short_code: &str) -> Result<Option<String>>;
 }
 
@@ -32,7 +32,7 @@ impl<R: UrlRepository> UrlServiceImpl<R> {
 
 #[async_trait]
 impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
-    async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<ShortUrlResponse> {
+    async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse> {
         let code = self.generate_short_code();
 
         let entity = self
@@ -40,7 +40,7 @@ impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
             .create(&code, &req.target_url, req.expires_at)
             .await?;
 
-        Ok(ShortUrlResponse {
+        Ok(CreateUrlResponse {
             id: entity.id,
             short_code: entity.short_code,
             target_url: entity.target_url,
