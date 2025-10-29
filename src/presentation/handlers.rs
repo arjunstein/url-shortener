@@ -1,11 +1,13 @@
 use crate::application::dtos::CreateShortUrlRequest;
 use crate::application::services::{UrlService, UrlServiceImpl};
+use crate::domain::validators::url_validator::is_valid_host;
 use crate::infrastructure::{database::db_pool, repositories::PostgresUrlRepository};
 use salvo::http::header::{HeaderName, HeaderValue};
 use salvo::prelude::*;
 use serde_json::json;
 use std::sync::Arc;
 use tracing;
+use url::Url;
 
 #[endpoint(
     tags("URL Shortener"),
@@ -18,7 +20,7 @@ use tracing;
 )]
 pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     // Parse JSON body
-    let body: CreateShortUrlRequest = match req.parse_json().await {
+    let mut body: CreateShortUrlRequest = match req.parse_json().await {
         Ok(b) => b,
         Err(_) => {
             res.status_code(StatusCode::BAD_REQUEST);
@@ -26,6 +28,29 @@ pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
             return;
         }
     };
+
+    // Attempt parse original, fallback with auto https://
+    let parsed = Url::parse(&body.target_url)
+        .or_else(|_| Url::parse(&format!("https://{}", body.target_url)));
+
+    let url = match parsed {
+        Ok(u) => u,
+        Err(_) => {
+            res.status_code(StatusCode::BAD_REQUEST);
+            res.render(Json(json!({"error": "must be a valid url"})));
+            return;
+        }
+    };
+
+    // Validate host strictly
+    if !is_valid_host(&url) {
+        res.status_code(StatusCode::BAD_REQUEST);
+        res.render(Json(json!({"error": "must be a valid url"})));
+        return;
+    }
+
+    // Normalized URL
+    body.target_url = url.to_string();
 
     // Build repo + service from global pool (fallback approach)
     let pool = db_pool().clone();
