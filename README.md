@@ -18,7 +18,7 @@ This API allows users to create short links, set expiration dates, perform autom
 
 ---
 
-## 📂 Struktur Direktori (DDD Pattern)
+## 📂 Directory Structure (DDD Pattern)
 
 ```
 src/
