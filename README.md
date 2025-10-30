@@ -1,20 +1,19 @@
 # 🔗 URL Shortener API (Rust + Salvo + DDD)
 
-Proyek ini adalah **URL Shortener API** modern berbasis **Rust** menggunakan framework **Salvo** dengan pola **Domain-Driven Design (DDD)**.  
-API ini memungkinkan pengguna membuat tautan pendek, mengatur tanggal kedaluwarsa, melakukan redirect otomatis, serta menampilkan daftar semua URL yang tersimpan.
+This project is a modern **URL Shortener API** based on **Rust** using the **Salvo** framework with the **Domain-Driven Design (DDD)** pattern.
+This API allows users to create short links, set expiration dates, perform automatic redirects, and display a list of all stored URLs.
 
 ---
 
-## 🧱 Teknologi yang Digunakan
+## 🧱 Technologies Used
 
-- **Rust** – bahasa utama, aman dan cepat ⚙️
-- **Salvo** – framework web asinkron yang ringan dan fleksibel
-- **Tokio** – runtime async untuk performa tinggi
-- **SQLx** – ORM asynchronous untuk PostgreSQL
-- **PostgreSQL** – database utama
-- **Docker + Docker Compose** – containerization & environment setup
-- **salvo_oapi (OpenAPI)** – dokumentasi Swagger otomatis
-- **chrono** – manajemen waktu (UTC & lokal)
+- **Rust** – primary language, secure and fast ⚙️
+- **Salvo** – lightweight and flexible asynchronous web framework
+- **Tokio** – async runtime for high performance
+- **SQLx** – asynchronous ORM for PostgreSQL
+- **PostgreSQL** – primary database
+- **salvo_oapi (OpenAPI)** – automatic Swagger documentation
+- **chrono** – time management (UTC & local)
 - **uuid, serde, anyhow, tracing** – helper crates
 
 ---
@@ -31,23 +30,23 @@ src/
 │   ├── entities.rs          # Domain model (UrlEntity)
 │   ├── repositories.rs      # Repository trait
 │   ├── validators/
-│   │   └── url_validator.rs # Validasi & normalisasi URL
-│   └── datetime_format.rs   # Format tanggal (UTC <-> Local)
+│   │   └── url_validator.rs # Validation & normalization URL
+│   └── datetime_format.rs   # Format date (UTC <-> Local)
 │
 ├── infrastructure/
-│   ├── database.rs          # Inisialisasi koneksi PostgreSQL
-│   └── repositories.rs      # Implementasi repository untuk Postgres
+│   ├── database.rs          # Database connection initialization
+│   └── repositories.rs      # Implementation repository for Postgres
 │
 ├── presentation/
-│   ├── handlers.rs          # Endpoint Salvo (create, redirect, list)
-│   └── routes.rs            # Definisi route & dokumentasi Swagger
+│   ├── handlers.rs          # Salvo endpoint (create, redirect, list)
+│   └── routes.rs            # Route definition & Swagger documentation
 │
-└── main.rs                  # Entry point aplikasi
+└── main.rs                  # Application entry point
 ```
 
 ---
 
-## 🚀 Menjalankan Proyek
+## 🚀 Running the Project
 
 ### 1️⃣ Clone repository
 
@@ -56,13 +55,13 @@ git clone https://github.com/username/url-shortener-rust.git
 cd url-shortener-rust
 ```
 
-### 2️⃣ Copy file environment
+### 2️⃣ Copy environment file
 
 ```bash
 cp .env.example .env
 ```
 
-Isi `.env` seperti berikut:
+Fill in the `.env` file like this:
 
 ```env
 DATABASE_URL=postgres://postgres:password@db:5432/db_name
@@ -72,7 +71,7 @@ PORT=8000
 
 ---
 
-## 🧩 Endpoint API
+## 🧩 API Endpoints
 
 ### 1. **Create Short URL**
 
@@ -105,11 +104,11 @@ PORT=8000
 
 `GET /api/v1/{code}`
 
-**Jika valid**
+**If valid**
 
-> Mengarahkan pengguna ke URL tujuan.
+> Redirects to the target URL.
 
-**Jika sudah kedaluwarsa**
+**If expired**
 
 ```json
 {
@@ -118,7 +117,7 @@ PORT=8000
 }
 ```
 
-**Jika tidak ditemukan**
+**If not found**
 
 ```json
 {
@@ -148,15 +147,15 @@ PORT=8000
 
 ---
 
-## 📘 Dokumentasi API
+## 📘 API Documentation
 
-Swagger UI otomatis tersedia di:
+Swagger UI is automatically available at:
 
 ```
 http://localhost:8000/documentation
 ```
 
-File OpenAPI JSON dapat diakses di:
+The OpenAPI JSON file can be accessed at:
 
 ```
 http://localhost:8000/api-doc/openapi.json
@@ -164,24 +163,24 @@ http://localhost:8000/api-doc/openapi.json
 
 ---
 
-## 🧠 Catatan Penting
+## 🧠 Important Notes
 
-- Field `expires_at` menggunakan **format lokal**: `YYYY-MM-DD HH:MM:SS`
-- Jika field `expires_at` kosong, URL dianggap **tidak memiliki batas waktu**
-- Otomatis menambahkan prefix `https://` jika user memasukkan domain tanpa protokol
-- Semua waktu (`created_at`, `expires_at`) otomatis diformat ke zona waktu lokal
+- Field `expires_at` uses **local format**: `YYYY-MM-DD HH:MM:SS`
+- If field `expires_at` is empty, the URL is considered **without expiration time**
+- Automatically adds the prefix `https://` if the user enters a domain without a protocol
+- All times (`created_at`, `expires_at`) are automatically formatted to local timezone
 
 ---
 
-## 🧑‍💻 Kontributor
+## 🧑‍💻 Contributor
 
-- **Nama:** Arjun Gunawan
+- **Name:** Arjunstein
 - **Stack:** Rust, Salvo, PostgreSQL
 - **Pattern:** Domain-Driven Design (DDD)
 
 ---
 
-## 📄 Lisensi
+## 📄 License
 
-Proyek ini dirilis di bawah lisensi **MIT**.  
-Bebas digunakan dan dimodifikasi dengan mencantumkan atribusi.
+This project is licensed under the **MIT** license.  
+Free to use and modify with attribution.
