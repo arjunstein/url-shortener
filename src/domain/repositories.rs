@@ -13,4 +13,5 @@ pub trait UrlRepository: Send + Sync {
     ) -> Result<ShortUrl>;
     async fn find_by_code(&self, code: &str) -> Result<Option<ShortUrl>>;
     async fn increments_clicks(&self, id: Uuid) -> Result<()>;
+    async fn get_all_url(&self) -> Result<Vec<ShortUrl>>;
 }

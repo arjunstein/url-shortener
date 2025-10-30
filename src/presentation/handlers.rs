@@ -1,4 +1,4 @@
-use crate::application::dtos::CreateShortUrlRequest;
+use crate::application::dtos::{CreateShortUrlRequest, CreateUrlResponse};
 use crate::application::services::{UrlService, UrlServiceImpl};
 use crate::domain::validators::url_validator::normalize_url;
 use crate::infrastructure::{database::db_pool, repositories::PostgresUrlRepository};
@@ -127,6 +127,33 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
                     "error": "internal server error"
                 })));
             }
+        }
+    }
+}
+
+#[endpoint(
+    tags("URL Shortener"),
+    summary = "Get all short URLs",
+    description = "Fetch all shortened URLs with their stats",
+    responses(
+        (status_code = 200, description = "List of short URLs", body = [CreateUrlResponse]),
+        (status_code = 500, description = "Internal server error", body = serde_json::Value, example = json!({"error": "internal server error"}))
+    )
+)]
+pub async fn get_all_handler(_req: &mut Request, res: &mut Response) {
+    let pool = db_pool().clone();
+    let repo = PostgresUrlRepository::new(pool);
+    let svc = UrlServiceImpl::new(Arc::new(repo));
+
+    match svc.get_all_urls().await {
+        Ok(list) => {
+            res.status_code(StatusCode::OK);
+            res.render(Json(list));
+        }
+        Err(e) => {
+            tracing::error!("get_all error: {:?}", e);
+            res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
+            res.render(Json(json!({"error": "internal server error"})));
         }
     }
 }
