@@ -172,14 +172,6 @@ http://localhost:8000/api-doc/openapi.json
 
 ---
 
-## 🧑‍💻 Contributor
-
-- **Name:** Arjunstein
-- **Stack:** Rust, Salvo, PostgreSQL
-- **Pattern:** Domain-Driven Design (DDD)
-
----
-
 ## 📄 License
 
 This project is licensed under the **MIT** license.  
