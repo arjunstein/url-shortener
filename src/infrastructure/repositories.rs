@@ -51,4 +51,11 @@ impl UrlRepository for PostgresUrlRepository {
         .await?;
         Ok(())
     }
+
+    async fn get_all_url(&self) -> Result<Vec<ShortUrl>> {
+        let records = sqlx::query_as!(ShortUrl, "SELECT * FROM short_urls ORDER BY id DESC")
+            .fetch_all(&self.pool)
+            .await?;
+        Ok(records)
+    }
 }

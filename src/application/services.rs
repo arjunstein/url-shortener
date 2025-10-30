@@ -11,6 +11,7 @@ use std::sync::Arc;
 pub trait UrlService: Send + Sync {
     async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse>;
     async fn get_target_url(&self, short_code: &str) -> Result<Option<String>>;
+    async fn get_all_urls(&self) -> Result<Vec<CreateUrlResponse>>;
 }
 
 pub struct UrlServiceImpl<R: UrlRepository> {
@@ -70,5 +71,20 @@ impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
         }
 
         Ok(None)
+    }
+
+    async fn get_all_urls(&self) -> Result<Vec<CreateUrlResponse>> {
+        let urls = self.repo.get_all_url().await?;
+        Ok(urls
+            .into_iter()
+            .map(|url| CreateUrlResponse {
+                id: url.id,
+                short_code: url.short_code,
+                target_url: url.target_url,
+                clicks: url.clicks,
+                created_at: url.created_at,
+                expires_at: url.expires_at,
+            })
+            .collect())
     }
 }
