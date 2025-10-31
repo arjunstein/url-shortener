@@ -58,4 +58,13 @@ impl UrlRepository for PostgresUrlRepository {
             .await?;
         Ok(records)
     }
+
+    async fn delete_expired_url(&self) -> Result<u64> {
+        let records = sqlx::query!(
+            "DELETE FROM short_urls WHERE expires_at IS NOT NULL AND expires_at < NOW()"
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(records.rows_affected())
+    }
 }

@@ -5,6 +5,8 @@ use salvo::prelude::*;
 use std::env;
 use tracing_subscriber;
 
+use crate::infrastructure::scheduler::start_cleanup_scheduler;
+
 mod application;
 mod domain;
 mod infrastructure;
@@ -21,6 +23,8 @@ async fn main() {
         .expect("Failed to init DB Pool");
     let acceptor = TcpListener::new("0.0.0.0:5800").bind().await;
     let router = router();
+
+    start_cleanup_scheduler();
 
     println!("{:?}", router);
     Server::new(acceptor).serve(router).await;
