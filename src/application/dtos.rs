@@ -6,6 +6,10 @@ use salvo::oapi::ToSchema;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 #[derive(Debug, Deserialize, ToSchema)]
+#[salvo(schema(example = json!({
+    "expires_at": "2025-10-31 14:20:30",
+    "target_url": "github.com"
+})))]
 pub struct CreateShortUrlRequest {
     pub target_url: String,
     #[serde(deserialize_with = "deserialize_option_datetime")]

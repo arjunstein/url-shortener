@@ -2,7 +2,7 @@ use crate::domain::entities::ShortUrl;
 use crate::domain::repositories::UrlRepository;
 use anyhow::Result;
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Timelike, Utc};
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -25,7 +25,8 @@ impl UrlRepository for PostgresUrlRepository {
         target_url: &str,
         expires_at: Option<DateTime<Utc>>,
     ) -> Result<ShortUrl> {
-        let record = sqlx::query_as!(ShortUrl, "INSERT INTO short_urls (short_code, target_url, expires_at) VALUES ($1, $2, $3) RETURNING *", short_code, target_url, expires_at)
+        let created_at = Utc::now().with_nanosecond(0).unwrap();
+        let record = sqlx::query_as!(ShortUrl, "INSERT INTO short_urls (short_code, target_url, created_at, expires_at) VALUES ($1, $2, $3, $4) RETURNING *", short_code, target_url, created_at, expires_at)
             .fetch_one(&self.pool)
             .await?;
         Ok(record)
