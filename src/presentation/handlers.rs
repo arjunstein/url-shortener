@@ -1,22 +1,14 @@
-use crate::application::dtos::{CreateShortUrlRequest, CreateUrlResponse};
+use crate::application::dtos::CreateShortUrlRequest;
 use crate::application::services::{UrlService, UrlServiceImpl};
 use crate::domain::validators::url_validator::normalize_url;
 use crate::infrastructure::{database::db_pool, repositories::PostgresUrlRepository};
 use salvo::http::header::{HeaderName, HeaderValue};
 use salvo::prelude::*;
-use serde_json::{Value, json};
+use serde_json::json;
 use std::sync::Arc;
 use tracing;
 
-#[endpoint(
-    tags("URL Shortener"),
-    summary = "Create short URL",
-    description = "Generate a short URL from a given target URL",
-    request_body(
-        content = CreateShortUrlRequest,
-        description = "Payload for creating a short URL"
-    )
-)]
+#[handler]
 pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     // Parse JSON body
     let mut body: CreateShortUrlRequest = match req.parse_json().await {
@@ -59,25 +51,7 @@ pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     }
 }
 
-#[endpoint(
-    tags("URL Shortener"),
-    summary = "Redirect short URL",
-    description = "Redirects to the original target URL if it exists and has not expired.",
-    parameters(
-        ("code" = String, Path, description = "The short code generated for the URL")
-    ),
-    responses(
-        (status_code = 307, description = "Redirect to the original target URL"),
-        (status_code = 404, description = "Short URL not found", body = Value, example = json!({"error": "Not Found"})),
-        (status_code = 410, description = "Short URL expired", body = Value, example = json!({
-            "error": "url expired",
-            "expired_at": "2025-10-29 14:20:30"
-        })),
-        (status_code = 500, description = "Internal server error", body = Value, example = json!({
-            "error": "internal server error"
-        }))
-    )
-)]
+#[handler]
 pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
     let code = req.param("code").unwrap_or("").to_owned();
 
@@ -131,15 +105,7 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
     }
 }
 
-#[endpoint(
-    tags("URL Shortener"),
-    summary = "Get all short URLs",
-    description = "Fetch all shortened URLs with their stats",
-    responses(
-        (status_code = 200, description = "List of short URLs", body = [CreateUrlResponse]),
-        (status_code = 500, description = "Internal server error", body = serde_json::Value, example = json!({"error": "internal server error"}))
-    )
-)]
+#[handler]
 pub async fn get_all_handler(_req: &mut Request, res: &mut Response) {
     let pool = db_pool().clone();
     let repo = PostgresUrlRepository::new(pool);
