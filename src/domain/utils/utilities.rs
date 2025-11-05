@@ -1,4 +1,5 @@
 use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
+use rand::{Rng, distributions::Alphanumeric};
 use serde::{self, Deserialize, Deserializer, Serializer};
 
 const FORMAT: &str = "%Y-%m-%d %H:%M:%S";
@@ -46,4 +47,13 @@ where
         }
         None => Ok(None),
     }
+}
+
+// generate short code for url
+pub fn generate_short_code(len: usize) -> String {
+    rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(len)
+        .map(char::from)
+        .collect()
 }

@@ -93,6 +93,7 @@ PORT=8000
   "id": "eb492660-18e8-4c8f-8a8b-a32744c0c316",
   "short_code": "DZMXE5QR",
   "target_url": "https://example.com/",
+  "clicks": 0,
   "created_at": "2025-10-29 14:42:59",
   "expires_at": "2025-10-29 14:42:30"
 }
@@ -112,7 +113,7 @@ PORT=8000
 
 ```json
 {
-  "error": "url expired",
+  "message": "url expired",
   "expired_at": "2025-10-29 14:20:30"
 }
 ```
@@ -121,7 +122,7 @@ PORT=8000
 
 ```json
 {
-  "error": "Not Found"
+  "message": "Not Found URL"
 }
 ```
 
@@ -139,10 +140,34 @@ PORT=8000
     "id": "8a192f9a-4f9d-4512-91da-81f36b3a412a",
     "short_code": "QkW3pLrT",
     "target_url": "https://rust-lang.org/",
+    "clicks": 99,
     "created_at": "2025-10-29 14:42:59",
     "expires_at": "2025-11-01 12:00:00"
   }
 ]
+```
+
+---
+
+### 4. **Delete Short URL**
+
+`DELETE /api/v1/shorten/{code}`
+
+**If not found**
+
+```json
+{
+  "message": "short url not found"
+}
+```
+
+**If success**
+
+```json
+{
+  "message": "short url deleted successfully",
+  "code": "code"
+}
 ```
 
 ---

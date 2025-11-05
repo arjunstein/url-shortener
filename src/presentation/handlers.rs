@@ -8,7 +8,15 @@ use serde_json::json;
 use std::sync::Arc;
 use tracing;
 
-#[handler]
+#[endpoint(
+    tags("URL Shortener"),
+    summary = "Create short URL",
+    description = "Generate a short URL from a given target URL",
+    request_body(
+        content = CreateShortUrlRequest,
+        description = "Payload for creating a short URL"
+    )
+)]
 pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     // Parse JSON body
     let mut body: CreateShortUrlRequest = match req.parse_json().await {
@@ -51,7 +59,20 @@ pub async fn create_short_handler(req: &mut Request, res: &mut Response) {
     }
 }
 
-#[handler]
+#[endpoint(
+    tags("URL Shortener"),
+    summary = "Redirect to target URL",
+    parameters(
+        ("code" = String, description = "Short URL code to redirect from")
+    ),
+    responses(
+        (status_code = 307, description = "Temporary redirect to the target URL"),
+        (status_code = 400, description = "Missing or invalid code parameter", body = serde_json::Value, example = json!({"error": "code param missing"})),
+        (status_code = 404, description = "Short URL not found", body = serde_json::Value, example = json!({"error": "Not Found"})),
+        (status_code = 410, description = "Short URL expired", body = serde_json::Value, example = json!({"error": "url expired"})),
+        (status_code = 500, description = "Internal server error", body = serde_json::Value, example = json!({"error": "internal server error"}))
+    )
+)]
 pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
     let code = req.param("code").unwrap_or("").to_owned();
 
@@ -82,7 +103,9 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
         Ok(None) => {
             tracing::error!("Not found resource: {}", code);
             res.status_code(StatusCode::NOT_FOUND);
-            res.render("Not Found");
+            res.render(Json(json!({
+                "message": "Not Found URL"
+            })));
         }
         Err(e) => {
             let msg = e.to_string();
@@ -91,7 +114,7 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
                 let exp = msg.trim_start_matches("EXPIRED:");
                 res.status_code(StatusCode::GONE);
                 res.render(Json(json!({
-                    "error": "url expired",
+                    "message": "url expired",
                     "expired_at": exp
                 })));
             } else {
@@ -105,7 +128,7 @@ pub async fn redirect_handler(req: &mut Request, res: &mut Response) {
     }
 }
 
-#[handler]
+#[endpoint(tags("URL Shortener"), summary = "Get all short URLs")]
 pub async fn get_all_handler(_req: &mut Request, res: &mut Response) {
     let pool = db_pool().clone();
     let repo = PostgresUrlRepository::new(pool);
@@ -124,7 +147,13 @@ pub async fn get_all_handler(_req: &mut Request, res: &mut Response) {
     }
 }
 
-#[handler]
+#[endpoint(
+    tags("URL Shortener"),
+    summary = "Delete a short URL",
+    parameters(
+        ("code" = String, description = "Short code to delete")
+    )
+)]
 pub async fn delete_url_handler(req: &mut Request, res: &mut Response) {
     let code = req.param("code").unwrap_or("").to_owned();
 
