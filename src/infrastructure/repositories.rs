@@ -68,4 +68,17 @@ impl UrlRepository for PostgresUrlRepository {
         .await?;
         Ok(records.rows_affected())
     }
+
+    async fn delete_by_code(&self, code: &str) -> Result<(), anyhow::Error> {
+        let rows_affected = sqlx::query("DELETE FROM short_urls WHERE short_code = $1")
+            .bind(code)
+            .execute(&self.pool)
+            .await?
+            .rows_affected();
+
+        if rows_affected == 0 {
+            anyhow::bail!("NOT_FOUND");
+        }
+        Ok(())
+    }
 }

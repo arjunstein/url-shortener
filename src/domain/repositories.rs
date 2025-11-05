@@ -15,4 +15,5 @@ pub trait UrlRepository: Send + Sync {
     async fn increments_clicks(&self, id: Uuid) -> Result<()>;
     async fn get_all_url(&self) -> Result<Vec<ShortUrl>>;
     async fn delete_expired_url(&self) -> Result<u64>;
+    async fn delete_by_code(&self, code: &str) -> Result<(), anyhow::Error>;
 }

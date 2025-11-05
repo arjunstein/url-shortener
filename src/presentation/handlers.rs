@@ -123,3 +123,39 @@ pub async fn get_all_handler(_req: &mut Request, res: &mut Response) {
         }
     }
 }
+
+#[handler]
+pub async fn delete_url_handler(req: &mut Request, res: &mut Response) {
+    let code = req.param("code").unwrap_or("").to_owned();
+
+    if code.is_empty() {
+        res.status_code(StatusCode::BAD_REQUEST);
+        res.render(Json(json!({ "error": "code param missing" })));
+        return;
+    }
+
+    let pool = db_pool().clone();
+    let repo = PostgresUrlRepository::new(pool);
+    let svc = UrlServiceImpl::new(Arc::new(repo));
+
+    match svc.delete_url(&code).await {
+        Ok(_) => {
+            tracing::info!("success delete url code: {}", code);
+            res.status_code(StatusCode::OK);
+            res.render(Json(json!({
+                "message": "short url deleted successfully",
+                "code": code
+            })));
+        }
+        Err(e) if e.to_string() == "NOT_FOUND" => {
+            tracing::error!("short url not found for delete {}", code);
+            res.status_code(StatusCode::NOT_FOUND);
+            res.render(Json(json!({ "error": "short url not found" })));
+        }
+        Err(e) => {
+            tracing::error!("delete error: {:?}", e);
+            res.status_code(StatusCode::INTERNAL_SERVER_ERROR);
+            res.render(Json(json!({ "error": "internal server error" })));
+        }
+    }
+}

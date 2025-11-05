@@ -12,6 +12,7 @@ pub trait UrlService: Send + Sync {
     async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse>;
     async fn get_target_url(&self, short_code: &str) -> Result<Option<String>>;
     async fn get_all_urls(&self) -> Result<Vec<CreateUrlResponse>>;
+    async fn delete_url(&self, code: &str) -> Result<(), anyhow::Error>;
 }
 
 pub struct UrlServiceImpl<R: UrlRepository> {
@@ -86,5 +87,10 @@ impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
                 expires_at: url.expires_at,
             })
             .collect())
+    }
+
+    async fn delete_url(&self, code: &str) -> Result<(), anyhow::Error> {
+        self.repo.delete_by_code(code).await?;
+        Ok(())
     }
 }
