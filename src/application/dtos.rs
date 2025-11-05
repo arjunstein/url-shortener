@@ -21,8 +21,6 @@ pub struct CreateUrlResponse {
     pub id: Uuid,
     pub short_code: String,
     pub target_url: String,
-    #[serde(skip_serializing)]
-    #[allow(dead_code)]
     pub clicks: i64,
     #[serde(serialize_with = "serialize_datetime")]
     pub created_at: DateTime<Utc>,
