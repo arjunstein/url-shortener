@@ -1,10 +1,8 @@
 use crate::application::dtos::{CreateShortUrlRequest, CreateUrlResponse};
-use crate::domain::repositories::UrlRepository;
+use crate::domain::{repositories::UrlRepository, utils::utilities::generate_short_code};
 use anyhow::{Result, anyhow};
 use async_trait::async_trait;
 use chrono::Utc;
-use rand::Rng;
-use rand::distributions::Alphanumeric;
 use std::sync::Arc;
 
 #[async_trait]
@@ -23,20 +21,12 @@ impl<R: UrlRepository> UrlServiceImpl<R> {
     pub fn new(repo: Arc<R>) -> Self {
         Self { repo }
     }
-
-    fn generate_short_code(&self) -> String {
-        rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(8)
-            .map(char::from)
-            .collect()
-    }
 }
 
 #[async_trait]
 impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
     async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse> {
-        let code = self.generate_short_code();
+        let code = generate_short_code(6);
 
         let entity = self
             .repo
