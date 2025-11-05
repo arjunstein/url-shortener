@@ -51,8 +51,8 @@ src/
 ### 1️⃣ Clone repository
 
 ```bash
-git clone https://github.com/username/url-shortener-rust.git
-cd url-shortener-rust
+git clone https://github.com/username/url-shortener.git
+cd url-shortener
 ```
 
 ### 2️⃣ Copy environment file
