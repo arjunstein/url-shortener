@@ -51,7 +51,7 @@ src/
 ### 1️⃣ Clone repository
 
 ```bash
-git clone https://github.com/username/url-shortener.git
+git clone https://github.com/arjunstein/url-shortener.git
 cd url-shortener
 ```
 
@@ -64,9 +64,10 @@ cp .env.example .env
 Fill in the `.env` file like this:
 
 ```env
+APP_PORT=8000
 DATABASE_URL=postgres://postgres:password@db:5432/db_name
 RUST_LOG=info
-PORT=8000
+CLEANUP_INTERVAL_SECS=3600
 ```
 
 ---
