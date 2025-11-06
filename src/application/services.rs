@@ -3,6 +3,7 @@ use crate::domain::{repositories::UrlRepository, utils::utilities::generate_shor
 use anyhow::{Result, anyhow};
 use async_trait::async_trait;
 use chrono::Utc;
+use std::env;
 use std::sync::Arc;
 
 #[async_trait]
@@ -26,7 +27,11 @@ impl<R: UrlRepository> UrlServiceImpl<R> {
 #[async_trait]
 impl<R: UrlRepository> UrlService for UrlServiceImpl<R> {
     async fn create_short_url(&self, req: CreateShortUrlRequest) -> Result<CreateUrlResponse> {
-        let code = generate_short_code(6);
+        let length_code = env::var("LENGTH_CODE")
+            .ok()
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or_else(|| "10".to_string());
+        let code = generate_short_code(length_code.parse().unwrap());
 
         let entity = self
             .repo
