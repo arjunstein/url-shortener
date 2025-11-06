@@ -21,7 +21,14 @@ async fn main() {
     init_db_pool(&database_url)
         .await
         .expect("Failed to init DB Pool");
-    let acceptor = TcpListener::new("0.0.0.0:5800").bind().await;
+
+    let app_port = std::env::var("APP_PORT")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "5800".to_string());
+    let bind_addr = format!("0.0.0.0:{}", app_port);
+
+    let acceptor = TcpListener::new(bind_addr).bind().await;
     let router = router();
 
     start_cleanup_scheduler();
